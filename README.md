@@ -1,103 +1,132 @@
-# 📈 Does Removing Stopwords Change TF-IDF Spam Classification Results?
+# 📩 Spam Message Detection using Naive Bayes & CountVectorizer
 
-This project analyzes how **removing stopwords** (common, non-informative words) affects  
-the performance of a **spam message classifier** built using **TF-IDF vectorization**  
-and the **Multinomial Naive Bayes** algorithm.
+
+## 🧠 Project Overview
+This project builds a **Spam Message Classifier** that automatically detects whether an SMS message is **spam** or **ham (not spam)**.  
+The pipeline includes **data cleaning**, **stopword removal**, **feature extraction** using **CountVectorizer**, and **model training** with **Multinomial Naive Bayes**.
+
+The goal is to demonstrate a full **Natural Language Processing (NLP)** pipeline — from raw text to model evaluation — using the **SMS Spam Collection Dataset**.
 
 ---
 
-## 📁 Dataset
-
-- **Source file:** `spam.csv`  
-- **Generated files:**
-  - `spam_clean.csv` → Removed empty rows and columns  
-  - `spam_clean_ready.csv` → Cleaned text (URLs, punctuation removed)  
-  - `spam_clean_removed_stopwords.csv` → Cleaned text + Stopwords removed  
+## 📂 Dataset
+The dataset used is the **SMS Spam Collection Dataset**, containing **5,572 messages** labeled as *ham* or *spam*.
 
 | Label | Count |
 |:------|------:|
-| ham   | 4825  |
-| spam  | 747   |
+| Ham   | 4,825 |
+| Spam  |   747 |
+
+After cleaning and processing, the data was saved in several stages:
+- `spam_clean.csv` – base cleaned version  
+- `spam_clean_ready.csv` – cleaned and normalized text  
+- `spam_clean_removed_stopwords.csv` – version without stopwords  
 
 ---
 
-## 🧰 Libraries Used
+## 🧹 Text Preprocessing
+The cleaning pipeline applies:
+
+1. Lowercasing  
+2. Removing URLs, emails, phone numbers  
+3. Removing punctuation and special characters  
+4. Trimming extra whitespace  
+5. (Optional) Removing English stopwords (`nltk.corpus.stopwords`)  
+
+Example transformation:
+
+| Original Text | Cleaned Text |
+|:---------------|:-------------|
+| “Go until jurong point, crazy.. Available only in bugis n great world…” | “go jurong point crazy available bugis n great world” |
+
+---
+
+## 🧮 Feature Extraction
+Text features were generated using **CountVectorizer** with the following settings:
 
 ```python
-import re
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import nltk
-from nltk.corpus import stopwords
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.utils.class_weight import compute_sample_weight
-from sklearn.metrics import (
-    classification_report,
-    accuracy_score,
-    confusion_matrix,
-    ConfusionMatrixDisplay
+CountVectorizer(
+    stop_words="english",
+    ngram_range=(1, 2),
+    min_df=2,
+    max_df=0.9,
+    max_features=50000
 )
 ```
-## 🧪 Version 1 — Without Stopword Removal
 
-The following results correspond to the **TF-IDF + Multinomial Naive Bayes** model  
-trained on the `v3_cleaned` column — where stopwords were **not removed**.
-
-### Confusion matrix:
-<img width="535" height="448" alt="Ekran Resmi 2025-11-08 12 50 00" src="https://github.com/user-attachments/assets/0c42aec6-693f-4647-b82e-de9abe9b820f" />
+This builds a **Bag-of-Words** model capturing both unigrams and bigrams.
 
 ---
 
-### ✅ Model Performance
-<img width="465" height="243" alt="Ekran Resmi 2025-11-08 12 49 34" src="https://github.com/user-attachments/assets/7a75a64d-45ba-403e-a812-153c1096daae" />
+## 🧠 Model Training
+The model used is **Multinomial Naive Bayes**.  
+Training and test data were split 80/20 with stratification.  
+Class imbalance was handled via sample weighting:
 
-
-### 🧩 Interpretation:
-Model without stopword removal achieved **96.6% accuracy**.  
-Slight confusion between *ham* and *spam* (30 FP, 8 FN),  
-but overall classification remained highly reliable.
-
----
-
-## 🧪 Version 2 — With Stopword Removal
-
-This version uses the **TF-IDF + Multinomial Naive Bayes** model trained on  
-the `key_column` text field — where **stopwords were removed** before vectorization.
+```python
+clf.fit(X_train, y_train, sample_weight=compute_sample_weight(class_weight="balanced", y=y_train))
+```
 
 ---
 
-### Confusion matrix:
+## 📊 Evaluation Results
 
-<img width="536" height="447" alt="Ekran Resmi 2025-11-08 12 49 00" src="https://github.com/user-attachments/assets/5985b2fe-163b-4b1f-a775-fc8c86406d56" />
+### 1️⃣ Without Stopword Removal
+| Metric | Ham | Spam | Macro Avg | Weighted Avg |
+|:--|--:|--:|--:|--:|
+| Precision | 0.99 | 0.86 | 0.92 | 0.97 |
+| Recall | 0.98 | 0.94 | 0.96 | 0.97 |
+| F1-Score | 0.98 | 0.90 | 0.94 | 0.97 |
+| **Accuracy** |  |  |  | **0.9713** |
+
+Confusion Matrix:
+```
+[[943  23]
+ [  9 140]]
+```
 
 ---
 
-### ✅ Model Performance
+### 2️⃣ With Stopword Removal
+| Metric | Ham | Spam | Macro Avg | Weighted Avg |
+|:--|--:|--:|--:|--:|
+| Precision | 0.99 | 0.86 | 0.92 | 0.97 |
+| Recall | 0.98 | 0.93 | 0.95 | 0.97 |
+| F1-Score | 0.98 | 0.89 | 0.94 | 0.97 |
+| **Accuracy** |  |  |  | **0.9704** |
 
-<img width="469" height="246" alt="Ekran Resmi 2025-11-08 12 48 03" src="https://github.com/user-attachments/assets/5189638f-514d-41dc-a6f1-821947b22a63" />
+Confusion Matrix:
+```
+[[943  23]
+ [ 10 139]]
+```
 
-### 🧩 Interpretation:  
-After removing stopwords, accuracy slightly improved to **96.9%**.  
-Spam F1-score rose to **0.89**, showing cleaner text helped the model  
-capture spam patterns a bit more effectively.
+---
 
-## 📊 Overall Report
+## 🔍 Comparison: With vs Without Stopwords
+| Aspect | Without Stopwords | With Stopwords |
+|:--|:--|:--|
+| Accuracy | 97.13% | 97.04% |
+| Spam Recall | 0.94 | 0.93 |
+| Spam F1-Score | 0.90 | 0.89 |
+| Vocabulary Size | Larger (includes common words) | Smaller (stopwords removed) |
+| Model Stability | Slightly better recall on spam | Slightly faster training |
 
-Both experiments — with and without stopword removal — produced **highly consistent results**.  
-Removing stopwords led to a **minor accuracy improvement** from **96.59% → 96.86%**,  
-and a small boost in spam **F1-score (0.88 → 0.89)**.
+👉 **Observation:**  
+Removing stopwords slightly reduced accuracy (by 0.001) and spam recall, but simplified the feature space and reduced training complexity.  
+Since spam messages often contain *common words used in marketing phrases*, removing stopwords can sometimes eliminate weak but helpful context words — explaining the small performance drop.
 
-| Version | Stopwords | Accuracy | Spam F1-Score | Observation |
-|:--------|:-----------|:----------:|:---------------:|:-------------|
-| **V1** | Kept | 0.9659 | 0.88 | Model performs strongly even with stopwords present |
-| **V2** | Removed | **0.9686** | **0.89** | Slight improvement due to reduced noise |
+---
 
-**Conclusion:**  
-Removing stopwords provided a **small but measurable gain** in model precision and F1-score,  
-especially for spam detection. However, the minimal difference suggests that  
-**TF-IDF weighting already mitigates most stopword influence**,  
-making the model robust in both cases.
+## 🧾 File Structure
+
+```
+📁 Datasets/
+ ├── spam.csv
+ ├── spam_clean.csv
+ ├── spam_clean_ready.csv
+ └── spam_clean_removed_stopwords.csv
+```
+---
+## ✨ Author
+**Yiğit Can Kınalı**  

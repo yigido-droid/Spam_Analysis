@@ -1,4 +1,4 @@
-# 📩 Spam Message Detection using Naive Bayes & CountVectorizer
+# 📩 Spam Detection & Stopword Impact Analysis 
 
 
 ## 🧠 Project Overview

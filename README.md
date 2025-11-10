@@ -2,10 +2,17 @@
 
 
 ## 🧠 Project Overview
-This project builds a **Spam Message Classifier** that automatically detects whether an SMS message is **spam** or **ham (not spam)**.  
-The pipeline includes **data cleaning**, **stopword removal**, **feature extraction** using **CountVectorizer**, and **model training** with **Multinomial Naive Bayes**.
+This project explores **Spam Message Detection** using **Natural Language Processing (NLP)** techniques, with a special focus on understanding how **stopword removal** affects model performance.
 
-The goal is to demonstrate a full **Natural Language Processing (NLP)** pipeline — from raw text to model evaluation — using the **SMS Spam Collection Dataset**.
+The main objective is twofold:
+
+1. **Build a robust spam classifier** using CountVectorizer and Multinomial Naive Bayes to distinguish between *spam* and *ham (legitimate)* messages.  
+2. **Compare model behavior** when common English stopwords (e.g., *“the”, “is”, “you”*) are **kept vs removed** during preprocessing.
+
+By analyzing these two variations, the project aims to answer a practical question in text analytics:  
+> 🧩 “Does removing stopwords always improve a model’s performance, or can it sometimes reduce valuable context — especially in spam detection tasks?”
+
+Through systematic preprocessing, feature extraction, and performance comparison, this study demonstrates that **stopword removal does not always guarantee better accuracy** — highlighting the importance of domain-aware preprocessing in NLP pipelines.
 
 ---
 
